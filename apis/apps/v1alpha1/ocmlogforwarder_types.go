@@ -125,7 +125,7 @@ type OCMLogForwarderSpecBackendElasticSearch struct {
 	//  ElasticSearch authentication type to use.  Only 'basic' supported at this time.
 	//
 	//  * 'basic': For 'basic' authentication, the secret from .spec.backend.elasticSearch.secretRef should contain the
-	//  basic authentication info for the ElasticSearch connection containing only a single key/value pair with
+	//  basic authentication information for the ElasticSearch connection containing only a single key/value pair with
 	//  the key as the username and the value as the password.
 	//
 	AuthType string `json:"authType,omitempty"`

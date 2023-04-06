@@ -2,12 +2,12 @@ apiVersion: apps.dustinscott.io/v1alpha1
 kind: OCMLogForwarder
 metadata:
   name: ocmlogforwarder-sample
-  namespace: ocm-log-forwarder
+  namespace: default
 spec:
   ocm:
     secretRef: "ocm-token"
-    clusterId: "22u78be01ukanemc80s27t7d49jcd8r8"
-    pollInternalMinutes: 1
+    clusterId: "22tgckqk9c2ff3jd8ve62p0i2st14vrq"
+    pollInternalMinutes: 5
   backend:
     elasticSearch:
       secretRef: "elastic-auth"

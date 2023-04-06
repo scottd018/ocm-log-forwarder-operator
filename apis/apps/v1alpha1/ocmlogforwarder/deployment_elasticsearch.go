@@ -105,7 +105,7 @@ func CreateDeploymentParentName(
 								//  repo are supported here.
 								//
 								"image":           "ghcr.io/scottd018/ocm-log-forwarder:" + parent.Spec.Version + "",
-								"imagePullPolicy": "Always",
+								"imagePullPolicy": "IfNotPresent",
 								"env": []interface{}{
 									// NOTE: present all config options here.  Use these as environment variables
 									//       on the deployment so that changes here result in the app realizing
@@ -171,7 +171,7 @@ func CreateDeploymentParentName(
 										//  ElasticSearch authentication type to use.  Only 'basic' supported at this time.
 										//
 										//  * 'basic': For 'basic' authentication, the secret from .spec.backend.elasticSearch.secretRef should contain the
-										//  basic authentication info for the ElasticSearch connection containing only a single key/value pair with
+										//  basic authentication information for the ElasticSearch connection containing only a single key/value pair with
 										//  the key as the username and the value as the password.
 										//
 										"value": parent.Spec.Backend.ElasticSearch.AuthType,
