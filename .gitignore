@@ -27,3 +27,4 @@ Dockerfile.cross
 
 # build
 build
+config/manager/kustomization.yaml.tmp
