@@ -39,20 +39,6 @@ type InitSubCommand struct {
 	InitFunc InitFunc
 }
 
-// NewBaseInitSubCommand returns a subcommand that is meant to belong to a parent
-// subcommand but have subcommands itself.
-func NewBaseInitSubCommand(parentCommand *cobra.Command) *InitSubCommand {
-	initCmd := &InitSubCommand{
-		Name:         "init",
-		Description:  "write a sample custom resource manifest for a workload to standard out",
-		SubCommandOf: parentCommand,
-	}
-
-	initCmd.Setup()
-
-	return initCmd
-}
-
 // Setup sets up this command to be used as a command.
 func (i *InitSubCommand) Setup() {
 	i.Command = &cobra.Command{

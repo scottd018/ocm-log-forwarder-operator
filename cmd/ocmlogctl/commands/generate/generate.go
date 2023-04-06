@@ -45,22 +45,6 @@ type GenerateSubCommand struct {
 	GenerateFunc GenerateFunc
 }
 
-// NewBaseGenerateSubCommand returns a subcommand that is meant to belong to a parent
-// subcommand but have subcommands itself.
-func NewBaseGenerateSubCommand(parentCommand *cobra.Command) *GenerateSubCommand {
-	generateCmd := &GenerateSubCommand{
-		Name:                  "generate",
-		Description:           "generate child resource manifests from a workload's custom resource",
-		UseCollectionManifest: false,
-		UseWorkloadManifest:   false,
-		SubCommandOf:          parentCommand,
-	}
-
-	generateCmd.Setup()
-
-	return generateCmd
-}
-
 // Setup sets up this command to be used as a command.
 func (g *GenerateSubCommand) Setup() {
 	g.Command = &cobra.Command{

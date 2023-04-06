@@ -18,26 +18,17 @@ package apps
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"reflect"
 
 	"github.com/go-logr/logr"
 	"github.com/nukleros/operator-builder-tools/pkg/controller/phases"
 	"github.com/nukleros/operator-builder-tools/pkg/controller/predicates"
 	"github.com/nukleros/operator-builder-tools/pkg/controller/workload"
-	"github.com/nukleros/operator-builder-tools/pkg/resources"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	appsv1alpha1 "github.com/scottd018/ocm-log-forwarder-operator/apis/apps/v1alpha1"
 	"github.com/scottd018/ocm-log-forwarder-operator/apis/apps/v1alpha1/ocmlogforwarder"
@@ -71,8 +62,6 @@ func NewOCMLogForwarderReconciler(mgr ctrl.Manager) *OCMLogForwarderReconciler {
 
 // +kubebuilder:rbac:groups=apps.dustinscott.io,resources=ocmlogforwarders,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=apps.dustinscott.io,resources=ocmlogforwarders/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=apps.dustinscott.io,resources=ocmlogforwarderconfigs,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=apps.dustinscott.io,resources=ocmlogforwarderconfigs/status,verbs=get;update;patch
 
 // Until Webhooks are implemented we need to list and watch namespaces to ensure
 // they are available before deploying resources,
@@ -90,9 +79,6 @@ func NewOCMLogForwarderReconciler(mgr ctrl.Manager) *OCMLogForwarderReconciler {
 func (r *OCMLogForwarderReconciler) Reconcile(ctx context.Context, request ctrl.Request) (ctrl.Result, error) {
 	req, err := r.NewRequest(ctx, request)
 	if err != nil {
-		if errors.Is(err, workload.ErrCollectionNotFound) {
-			return ctrl.Result{Requeue: true}, nil
-		}
 
 		if !apierrs.IsNotFound(err) {
 			return ctrl.Result{}, err
@@ -136,123 +122,17 @@ func (r *OCMLogForwarderReconciler) NewRequest(ctx context.Context, request ctrl
 		Log:      log,
 	}
 
-	// store the collection and return any resulting error
-	return workloadRequest, r.SetCollection(component, workloadRequest)
-}
-
-// SetCollection sets the collection for a particular workload request.
-func (r *OCMLogForwarderReconciler) SetCollection(component *appsv1alpha1.OCMLogForwarder, req *workload.Request) error {
-	collection, err := r.GetCollection(component, req)
-	if err != nil || collection == nil {
-		return fmt.Errorf("unable to set collection, %w", err)
-	}
-
-	req.Collection = collection
-
-	return r.EnqueueRequestOnCollectionChange(req)
-}
-
-// GetCollection gets a collection for a component given a list.
-func (r *OCMLogForwarderReconciler) GetCollection(
-	component *appsv1alpha1.OCMLogForwarder,
-	req *workload.Request,
-) (*appsv1alpha1.OCMLogForwarderConfig, error) {
-	var collectionList appsv1alpha1.OCMLogForwarderConfigList
-
-	if err := r.List(req.Context, &collectionList); err != nil {
-		return nil, fmt.Errorf("unable to list collection OCMLogForwarderConfig, %w", err)
-	}
-
-	// determine if we have requested a specific collection
-	name, namespace := component.Spec.Collection.Name, component.Spec.Collection.Namespace
-
-	var collectionRef appsv1alpha1.OCMLogForwarderCollectionSpec
-
-	hasSpecificCollection := component.Spec.Collection != collectionRef && component.Spec.Collection.Name != ""
-
-	// if a specific collection has not been requested, we ensure only one exists
-	if !hasSpecificCollection {
-		if len(collectionList.Items) != 1 {
-			return nil, fmt.Errorf("expected only 1 OCMLogForwarderConfig collection, found %v", len(collectionList.Items))
-		}
-
-		return &collectionList.Items[0], nil
-	}
-
-	// find the collection that was requested and return it
-	for _, collection := range collectionList.Items {
-		if collection.Name == name && collection.Namespace == namespace {
-			return &collection, nil
-		}
-	}
-
-	return nil, workload.ErrCollectionNotFound
-}
-
-// EnqueueRequestOnCollectionChange enqueues a reconcile request when an associated collection object changes.
-func (r *OCMLogForwarderReconciler) EnqueueRequestOnCollectionChange(req *workload.Request) error {
-	if len(r.Watches) > 0 {
-		for _, watched := range r.Watches {
-			if reflect.DeepEqual(
-				req.Collection.GetObjectKind().GroupVersionKind(),
-				watched.GetObjectKind().GroupVersionKind(),
-			) {
-				return nil
-			}
-		}
-	}
-
-	// create a function which maps this specific reconcile request
-	mapFn := func(collection client.Object) []reconcile.Request {
-		return []reconcile.Request{
-			{
-				NamespacedName: types.NamespacedName{
-					Name:      req.Workload.GetName(),
-					Namespace: req.Workload.GetNamespace(),
-				},
-			},
-		}
-	}
-
-	// watch the collection and use our map function to enqueue the request
-	if err := r.Controller.Watch(
-		&source.Kind{Type: req.Collection},
-		handler.EnqueueRequestsFromMapFunc(mapFn),
-		predicate.Funcs{
-			UpdateFunc: func(e event.UpdateEvent) bool {
-				if !resources.EqualNamespaceName(e.ObjectNew, req.Collection) {
-					return false
-				}
-
-				return e.ObjectNew != e.ObjectOld
-			},
-			CreateFunc: func(e event.CreateEvent) bool {
-				return false
-			},
-			GenericFunc: func(e event.GenericEvent) bool {
-				return false
-			},
-			DeleteFunc: func(e event.DeleteEvent) bool {
-				return false
-			},
-		},
-	); err != nil {
-		return err
-	}
-
-	r.Watches = append(r.Watches, req.Collection)
-
-	return nil
+	return workloadRequest, nil
 }
 
 // GetResources resources runs the methods to properly construct the resources in memory.
 func (r *OCMLogForwarderReconciler) GetResources(req *workload.Request) ([]client.Object, error) {
-	component, collection, err := ocmlogforwarder.ConvertWorkload(req.Workload, req.Collection)
+	component, err := ocmlogforwarder.ConvertWorkload(req.Workload)
 	if err != nil {
 		return nil, err
 	}
 
-	return ocmlogforwarder.Generate(*component, *collection, r, req)
+	return ocmlogforwarder.Generate(*component, r, req)
 }
 
 // GetEventRecorder returns the event recorder for writing kubernetes events.

@@ -1,8 +1,9 @@
-A Kubernetes operator built with [operator-builder](https://github.com/nukleros/operator-builder).
+A Kubernetes operator built with
+[operator-builder](https://github.com/nukleros/operator-builder).
 
 ## Local Development & Testing
 
-To install the custom resources for this operator, make sure you have a
+To install the custom resource/s for this operator, make sure you have a
 kubeconfig set up for a test cluster, then run:
 
     make install
@@ -11,7 +12,7 @@ To run the controller locally against a test cluster:
 
     make run
 
-You can then test the operator by creating the sample manifests:
+You can then test the operator by creating the sample manifest/s:
 
     kubectl apply -f config/samples
 

@@ -44,20 +44,6 @@ type VersionSubCommand struct {
 	VersionFunc VersionFunc
 }
 
-// NewBaseVersionSubCommand returns a subcommand that is meant to belong to a parent
-// subcommand but have subcommands itself.
-func NewBaseVersionSubCommand(parentCommand *cobra.Command) *VersionSubCommand {
-	versionCmd := &VersionSubCommand{
-		Name:         "version",
-		Description:  "display the version information",
-		SubCommandOf: parentCommand,
-	}
-
-	versionCmd.Setup()
-
-	return versionCmd
-}
-
 // Setup sets up this command to be used as a command.
 func (v *VersionSubCommand) Setup() {
 	v.Command = &cobra.Command{

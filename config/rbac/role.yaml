@@ -20,26 +20,6 @@ rules:
 - apiGroups:
   - apps.dustinscott.io
   resources:
-  - ocmlogforwarderconfigs
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - apps.dustinscott.io
-  resources:
-  - ocmlogforwarderconfigs/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - apps.dustinscott.io
-  resources:
   - ocmlogforwarders
   verbs:
   - create
@@ -62,12 +42,7 @@ rules:
   resources:
   - namespaces
   verbs:
-  - create
-  - delete
-  - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
   - ""

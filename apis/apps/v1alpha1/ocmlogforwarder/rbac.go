@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package ocmlogforwarderconfig
+package ocmlogforwarder
 
 import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -23,14 +23,14 @@ import (
 	"github.com/nukleros/operator-builder-tools/pkg/controller/workload"
 
 	appsv1alpha1 "github.com/scottd018/ocm-log-forwarder-operator/apis/apps/v1alpha1"
-	"github.com/scottd018/ocm-log-forwarder-operator/apis/apps/v1alpha1/ocmlogforwarderconfig/mutate"
+	"github.com/scottd018/ocm-log-forwarder-operator/apis/apps/v1alpha1/ocmlogforwarder/mutate"
 )
 
 // +kubebuilder:rbac:groups=core,resources=serviceaccounts,verbs=get;list;watch;create;update;patch;delete
 
-// CreateServiceAccountForwarderNamespaceParentName creates the ServiceAccount resource with name parent.Name.
-func CreateServiceAccountForwarderNamespaceParentName(
-	parent *appsv1alpha1.OCMLogForwarderConfig,
+// CreateServiceAccountParentName creates the ServiceAccount resource with name parent.Name.
+func CreateServiceAccountParentName(
+	parent *appsv1alpha1.OCMLogForwarder,
 	reconciler workload.Reconciler,
 	req *workload.Request,
 ) ([]client.Object, error) {
@@ -43,21 +43,21 @@ func CreateServiceAccountForwarderNamespaceParentName(
 			"metadata": map[string]interface{}{
 				// controlled by field:
 				"name": parent.Name,
-				// controlled by field: forwarderNamespace
-				"namespace": parent.Spec.ForwarderNamespace,
 			},
 		},
 	}
 
-	return mutate.MutateServiceAccountForwarderNamespaceParentName(resourceObj, parent, reconciler, req)
+	resourceObj.SetNamespace(parent.Namespace)
+
+	return mutate.MutateServiceAccountParentName(resourceObj, parent, reconciler, req)
 }
 
 // +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=core,resources=secrets,verbs=get;watch;list
 
-// CreateRoleForwarderNamespaceParentNameOcm creates the Role resource with name parent.name + -ocm.
-func CreateRoleForwarderNamespaceParentNameOcm(
-	parent *appsv1alpha1.OCMLogForwarderConfig,
+// CreateRoleParentNameOcm creates the Role resource with name parent.name + -ocm.
+func CreateRoleParentNameOcm(
+	parent *appsv1alpha1.OCMLogForwarder,
 	reconciler workload.Reconciler,
 	req *workload.Request,
 ) ([]client.Object, error) {
@@ -69,8 +69,6 @@ func CreateRoleForwarderNamespaceParentNameOcm(
 			"metadata": map[string]interface{}{
 				// controlled by field:
 				"name": "" + parent.Name + "-ocm",
-				// controlled by field: forwarderNamespace
-				"namespace": parent.Spec.ForwarderNamespace,
 			},
 			"rules": []interface{}{
 				map[string]interface{}{
@@ -86,24 +84,25 @@ func CreateRoleForwarderNamespaceParentNameOcm(
 						"list",
 					},
 					"resourceNames": []interface{}{
-						// NOTE: this secret must pre-exist for this operator to work.  The key should contain the
-						//       string value of the JSON OCM API key.
-						"ocm-token",
+						// controlled by field: ocm.secretRef
+						parent.Spec.Ocm.SecretRef,
 					},
 				},
 			},
 		},
 	}
 
-	return mutate.MutateRoleForwarderNamespaceParentNameOcm(resourceObj, parent, reconciler, req)
+	resourceObj.SetNamespace(parent.Namespace)
+
+	return mutate.MutateRoleParentNameOcm(resourceObj, parent, reconciler, req)
 }
 
 // +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=core,resources=secrets,verbs=get;watch;list
 
-// CreateRoleForwarderNamespaceParentNameElastic creates the Role resource with name parent.name + -elastic.
-func CreateRoleForwarderNamespaceParentNameElastic(
-	parent *appsv1alpha1.OCMLogForwarderConfig,
+// CreateRoleParentNameElastic creates the Role resource with name parent.name + -elastic.
+func CreateRoleParentNameElastic(
+	parent *appsv1alpha1.OCMLogForwarder,
 	reconciler workload.Reconciler,
 	req *workload.Request,
 ) ([]client.Object, error) {
@@ -120,8 +119,6 @@ func CreateRoleForwarderNamespaceParentNameElastic(
 			"metadata": map[string]interface{}{
 				// controlled by field:
 				"name": "" + parent.Name + "-elastic",
-				// controlled by field: forwarderNamespace
-				"namespace": parent.Spec.ForwarderNamespace,
 			},
 			"rules": []interface{}{
 				map[string]interface{}{
@@ -137,23 +134,24 @@ func CreateRoleForwarderNamespaceParentNameElastic(
 						"list",
 					},
 					"resourceNames": []interface{}{
-						// NOTE: this secret must pre-exist for this operator to work.  The key should contain the
-						//       string value of the JSON OCM API key.
-						"elastic-auth",
+						// controlled by field: backend.elasticSearch.secretRef
+						parent.Spec.Backend.ElasticSearch.SecretRef,
 					},
 				},
 			},
 		},
 	}
 
-	return mutate.MutateRoleForwarderNamespaceParentNameElastic(resourceObj, parent, reconciler, req)
+	resourceObj.SetNamespace(parent.Namespace)
+
+	return mutate.MutateRoleParentNameElastic(resourceObj, parent, reconciler, req)
 }
 
 // +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=rolebindings,verbs=get;list;watch;create;update;patch;delete
 
-// CreateRoleBindingForwarderNamespaceParentNameOcm creates the RoleBinding resource with name parent.name + -ocm.
-func CreateRoleBindingForwarderNamespaceParentNameOcm(
-	parent *appsv1alpha1.OCMLogForwarderConfig,
+// CreateRoleBindingParentNameOcm creates the RoleBinding resource with name parent.name + -ocm.
+func CreateRoleBindingParentNameOcm(
+	parent *appsv1alpha1.OCMLogForwarder,
 	reconciler workload.Reconciler,
 	req *workload.Request,
 ) ([]client.Object, error) {
@@ -165,8 +163,6 @@ func CreateRoleBindingForwarderNamespaceParentNameOcm(
 			"metadata": map[string]interface{}{
 				// controlled by field:
 				"name": "" + parent.Name + "-ocm",
-				// controlled by field: forwarderNamespace
-				"namespace": parent.Spec.ForwarderNamespace,
 			},
 			"roleRef": map[string]interface{}{
 				"apiGroup": "rbac.authorization.k8s.io",
@@ -184,14 +180,16 @@ func CreateRoleBindingForwarderNamespaceParentNameOcm(
 		},
 	}
 
-	return mutate.MutateRoleBindingForwarderNamespaceParentNameOcm(resourceObj, parent, reconciler, req)
+	resourceObj.SetNamespace(parent.Namespace)
+
+	return mutate.MutateRoleBindingParentNameOcm(resourceObj, parent, reconciler, req)
 }
 
 // +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=rolebindings,verbs=get;list;watch;create;update;patch;delete
 
-// CreateRoleBindingForwarderNamespaceParentNameElastic creates the RoleBinding resource with name parent.name + -elastic.
-func CreateRoleBindingForwarderNamespaceParentNameElastic(
-	parent *appsv1alpha1.OCMLogForwarderConfig,
+// CreateRoleBindingParentNameElastic creates the RoleBinding resource with name parent.name + -elastic.
+func CreateRoleBindingParentNameElastic(
+	parent *appsv1alpha1.OCMLogForwarder,
 	reconciler workload.Reconciler,
 	req *workload.Request,
 ) ([]client.Object, error) {
@@ -208,8 +206,6 @@ func CreateRoleBindingForwarderNamespaceParentNameElastic(
 			"metadata": map[string]interface{}{
 				// controlled by field:
 				"name": "" + parent.Name + "-elastic",
-				// controlled by field: forwarderNamespace
-				"namespace": parent.Spec.ForwarderNamespace,
 			},
 			"roleRef": map[string]interface{}{
 				"apiGroup": "rbac.authorization.k8s.io",
@@ -227,5 +223,7 @@ func CreateRoleBindingForwarderNamespaceParentNameElastic(
 		},
 	}
 
-	return mutate.MutateRoleBindingForwarderNamespaceParentNameElastic(resourceObj, parent, reconciler, req)
+	resourceObj.SetNamespace(parent.Namespace)
+
+	return mutate.MutateRoleBindingParentNameElastic(resourceObj, parent, reconciler, req)
 }

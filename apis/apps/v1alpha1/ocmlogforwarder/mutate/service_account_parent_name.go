@@ -24,10 +24,10 @@ import (
 	appsv1alpha1 "github.com/scottd018/ocm-log-forwarder-operator/apis/apps/v1alpha1"
 )
 
-// MutateRoleBindingForwarderNamespaceParentNameOcm mutates the RoleBinding resource with name parent.name + -ocm.
-func MutateRoleBindingForwarderNamespaceParentNameOcm(
+// MutateServiceAccountParentName mutates the ServiceAccount resource with name parent.Name.
+func MutateServiceAccountParentName(
 	original client.Object,
-	parent *appsv1alpha1.OCMLogForwarderConfig,
+	parent *appsv1alpha1.OCMLogForwarder,
 	reconciler workload.Reconciler, req *workload.Request,
 ) ([]client.Object, error) {
 	// if either the reconciler or request are found to be nil, return the base object.

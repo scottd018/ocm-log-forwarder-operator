@@ -4,11 +4,16 @@ metadata:
   name: ocmlogforwarder-sample
   namespace: ocm-log-forwarder
 spec:
-  #collection:
-    #name: "ocmlogforwarderconfig-sample"
-    #namespace: ""
-  forwarderVersion: "latest"
   ocm:
+    secretRef: "ocm-token"
     clusterId: "22u78be01ukanemc80s27t7d49jcd8r8"
-    pollInternalMinutes: 5
+    pollInternalMinutes: 1
+  backend:
+    elasticSearch:
+      secretRef: "elastic-auth"
+      url: "https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200"
+      authType: "basic"
+      index: "ocm_service_logs"
+    type: "elasticsearch"
+  version: "latest"
   debug: false

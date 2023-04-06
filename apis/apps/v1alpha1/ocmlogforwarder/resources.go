@@ -34,13 +34,18 @@ metadata:
   name: ocmlogforwarder-sample
   namespace: default
 spec:
-  #collection:
-    #name: "ocmlogforwarderconfig-sample"
-    #namespace: ""
-  forwarderVersion: "latest"
   ocm:
+    secretRef: "ocm-token"
     clusterId: "22tgckqk9c2ff3jd8ve62p0i2st14vrq"
     pollInternalMinutes: 5
+  backend:
+    elasticSearch:
+      secretRef: "elastic-auth"
+      url: "https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200"
+      authType: "basic"
+      index: "ocm_service_logs"
+    type: "elasticsearch"
+  version: "latest"
   debug: false
 `
 
@@ -51,9 +56,6 @@ metadata:
   name: ocmlogforwarder-sample
   namespace: default
 spec:
-  #collection:
-    #name: "ocmlogforwarderconfig-sample"
-    #namespace: ""
   ocm:
     clusterId: "22tgckqk9c2ff3jd8ve62p0i2st14vrq"
 `
@@ -71,14 +73,13 @@ func Sample(requiredOnly bool) string {
 // appropriate structured inputs.
 func Generate(
 	workloadObj appsv1alpha1.OCMLogForwarder,
-	collectionObj appsv1alpha1.OCMLogForwarderConfig,
 	reconciler workload.Reconciler,
 	req *workload.Request,
 ) ([]client.Object, error) {
 	resourceObjects := []client.Object{}
 
 	for _, f := range CreateFuncs {
-		resources, err := f(&workloadObj, &collectionObj, reconciler, req)
+		resources, err := f(&workloadObj, reconciler, req)
 
 		if err != nil {
 			return nil, err
@@ -92,7 +93,7 @@ func Generate(
 
 // GenerateForCLI returns the child resources that are associated with this workload given
 // appropriate YAML manifest files.
-func GenerateForCLI(workloadFile []byte, collectionFile []byte) ([]client.Object, error) {
+func GenerateForCLI(workloadFile []byte) ([]client.Object, error) {
 	var workloadObj appsv1alpha1.OCMLogForwarder
 	if err := yaml.Unmarshal(workloadFile, &workloadObj); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal yaml into workload, %w", err)
@@ -102,16 +103,7 @@ func GenerateForCLI(workloadFile []byte, collectionFile []byte) ([]client.Object
 		return nil, fmt.Errorf("error validating workload yaml, %w", err)
 	}
 
-	var collectionObj appsv1alpha1.OCMLogForwarderConfig
-	if err := yaml.Unmarshal(collectionFile, &collectionObj); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal yaml into collection, %w", err)
-	}
-
-	if err := workload.Validate(&collectionObj); err != nil {
-		return nil, fmt.Errorf("error validating collection yaml, %w", err)
-	}
-
-	return Generate(workloadObj, collectionObj, nil, nil)
+	return Generate(workloadObj, nil, nil)
 }
 
 // CreateFuncs is an array of functions that are called to create the child resources for the controller
@@ -119,11 +111,15 @@ func GenerateForCLI(workloadFile []byte, collectionFile []byte) ([]client.Object
 // database.
 var CreateFuncs = []func(
 	*appsv1alpha1.OCMLogForwarder,
-	*appsv1alpha1.OCMLogForwarderConfig,
 	workload.Reconciler,
 	*workload.Request,
 ) ([]client.Object, error){
-	CreateDeploymentForwarderNamespaceParentName,
+	CreateServiceAccountParentName,
+	CreateRoleParentNameOcm,
+	CreateRoleParentNameElastic,
+	CreateRoleBindingParentNameOcm,
+	CreateRoleBindingParentNameElastic,
+	CreateDeploymentParentName,
 }
 
 // InitFuncs is an array of functions that are called prior to starting the controller manager.  This is
@@ -136,25 +132,15 @@ var CreateFuncs = []func(
 // setup, it will fail.
 var InitFuncs = []func(
 	*appsv1alpha1.OCMLogForwarder,
-	*appsv1alpha1.OCMLogForwarderConfig,
 	workload.Reconciler,
 	*workload.Request,
 ) ([]client.Object, error){}
 
-func ConvertWorkload(component, collection workload.Workload) (
-	*appsv1alpha1.OCMLogForwarder,
-	*appsv1alpha1.OCMLogForwarderConfig,
-	error,
-) {
+func ConvertWorkload(component workload.Workload) (*appsv1alpha1.OCMLogForwarder, error) {
 	p, ok := component.(*appsv1alpha1.OCMLogForwarder)
 	if !ok {
-		return nil, nil, appsv1alpha1.ErrUnableToConvertOCMLogForwarder
+		return nil, appsv1alpha1.ErrUnableToConvertOCMLogForwarder
 	}
 
-	c, ok := collection.(*appsv1alpha1.OCMLogForwarderConfig)
-	if !ok {
-		return nil, nil, appsv1alpha1.ErrUnableToConvertOCMLogForwarderConfig
-	}
-
-	return p, c, nil
+	return p, nil
 }

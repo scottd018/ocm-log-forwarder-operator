@@ -30,9 +30,7 @@ import (
 
 	// common imports for subcommands
 	cmdgenerate "github.com/scottd018/ocm-log-forwarder-operator/cmd/ocmlogctl/commands/generate"
-
 	// specific imports for workloads
-
 	v1alpha1ocmlogforwarder "github.com/scottd018/ocm-log-forwarder-operator/apis/apps/v1alpha1/ocmlogforwarder"
 	//+kubebuilder:scaffold:operator-builder:imports
 )
@@ -41,14 +39,11 @@ import (
 // parent command.
 func NewOCMLogForwarderSubCommand(parentCommand *cobra.Command) {
 	generateCmd := &cmdgenerate.GenerateSubCommand{
-		Name:                  "forwarder",
-		Description:           "Manage OCM Log Forwarder workload",
-		SubCommandOf:          parentCommand,
-		GenerateFunc:          GenerateOCMLogForwarder,
-		UseCollectionManifest: true,
-		CollectionKind:        "OCMLogForwarderConfig",
-		UseWorkloadManifest:   true,
-		WorkloadKind:          "OCMLogForwarder",
+		Name:         "generate",
+		Description:  "generate child resource manifests from a workload's custom resource",
+		SubCommandOf: parentCommand,
+		GenerateFunc: GenerateOCMLogForwarder, UseWorkloadManifest: true,
+		WorkloadKind: "OCMLogForwarder",
 	}
 
 	generateCmd.Setup()
@@ -76,32 +71,15 @@ func GenerateOCMLogForwarder(g *cmdgenerate.GenerateSubCommand) error {
 
 	apiVersion = workloadAPIVersion
 
-	collectionFilename, _ := filepath.Abs(g.CollectionManifest)
-	collectionFile, err := os.ReadFile(collectionFilename)
-	if err != nil {
-		return fmt.Errorf("failed to open collection file %s, %w", collectionFile, err)
-	}
-
-	var collection map[string]interface{}
-
-	if err := yaml.Unmarshal(collectionFile, &collection); err != nil {
-		return fmt.Errorf("failed to unmarshal yaml into collection, %w", err)
-	}
-
-	collectionGroupVersion := strings.Split(collection["apiVersion"].(string), "/")
-	collectionAPIVersion := collectionGroupVersion[len(collectionGroupVersion)-1]
-
-	apiVersion = collectionAPIVersion
-
 	// generate a map of all versions to generate functions for each api version created
-	type generateFunc func([]byte, []byte) ([]client.Object, error)
+	type generateFunc func([]byte) ([]client.Object, error)
 	generateFuncMap := map[string]generateFunc{
 		"v1alpha1": v1alpha1ocmlogforwarder.GenerateForCLI,
 		//+kubebuilder:scaffold:operator-builder:versionmap
 	}
 
 	generate := generateFuncMap[apiVersion]
-	resourceObjects, err := generate(workloadFile, collectionFile)
+	resourceObjects, err := generate(workloadFile)
 	if err != nil {
 		return fmt.Errorf("unable to retrieve resources; %w", err)
 	}

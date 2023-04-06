@@ -34,10 +34,10 @@ const (
 	logForwarderContainerName = "forwarder"
 )
 
-// MutateDeploymentForwarderNamespaceParentName mutates the Deployment resource with name parent.Name.
-func MutateDeploymentForwarderNamespaceParentName(
+// MutateDeploymentParentName mutates the Deployment resource with name parent.Name.
+func MutateDeploymentParentName(
 	original client.Object,
-	parent *appsv1alpha1.OCMLogForwarder, collection *appsv1alpha1.OCMLogForwarderConfig,
+	parent *appsv1alpha1.OCMLogForwarder,
 	reconciler workload.Reconciler, req *workload.Request,
 ) ([]client.Object, error) {
 	// if either the reconciler or request are found to be nil, return the base object.

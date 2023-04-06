@@ -40,12 +40,12 @@ func appsv1alpha1OCMLogForwarderChildrenFuncs(tester *E2ETest) error {
 		return nil
 	}
 
-	workload, collection, err := ocmlogforwarder.ConvertWorkload(tester.workload, tester.collectionTester.workload)
+	workload, err := ocmlogforwarder.ConvertWorkload(tester.workload)
 	if err != nil {
 		return fmt.Errorf("error in workload conversion; %w", err)
 	}
 
-	resourceObjects, err := ocmlogforwarder.Generate(*workload, *collection, nil, nil)
+	resourceObjects, err := ocmlogforwarder.Generate(*workload, nil, nil)
 	if err != nil {
 		return fmt.Errorf("unable to create objects in memory; %w", err)
 	}
@@ -63,7 +63,6 @@ func appsv1alpha1OCMLogForwarderNewHarness(namespace string) *E2ETest {
 		sampleManifestFile: "../../config/samples/apps_v1alpha1_ocmlogforwarder.yaml",
 		getChildrenFunc:    appsv1alpha1OCMLogForwarderChildrenFuncs,
 		logSyntax:          "controllers.apps.OCMLogForwarder",
-		collectionTester:   appsv1alpha1OCMLogForwarderConfigNewHarness(""),
 	}
 }
 

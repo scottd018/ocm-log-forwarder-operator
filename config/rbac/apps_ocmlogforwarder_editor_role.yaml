@@ -1,27 +1,31 @@
-# permissions for end users to view ocmlogforwarderconfigs.
+# permissions for end users to edit ocmlogforwarders.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app.kubernetes.io/name: clusterrole
-    app.kubernetes.io/instance: ocmlogforwarderconfig-viewer-role
+    app.kubernetes.io/instance: ocmlogforwarder-editor-role
     app.kubernetes.io/component: rbac
     app.kubernetes.io/created-by: ocm-log-forwarder-operator
     app.kubernetes.io/part-of: ocm-log-forwarder-operator
     app.kubernetes.io/managed-by: kustomize
-  name: ocmlogforwarderconfig-viewer-role
+  name: ocmlogforwarder-editor-role
 rules:
 - apiGroups:
   - apps.dustinscott.io
   resources:
-  - ocmlogforwarderconfigs
+  - ocmlogforwarders
   verbs:
+  - create
+  - delete
   - get
   - list
+  - patch
+  - update
   - watch
 - apiGroups:
   - apps.dustinscott.io
   resources:
-  - ocmlogforwarderconfigs/status
+  - ocmlogforwarders/status
   verbs:
   - get

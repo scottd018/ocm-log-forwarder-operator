@@ -35,35 +35,57 @@ spec:
           spec:
             description: OCMLogForwarderSpec defines the desired state of OCMLogForwarder.
             properties:
-              collection:
-                description: Specifies a reference to the collection to use for this
-                  workload. Requires the name and namespace input to find the collection.
-                  If no collection field is set, default to selecting the only workload
-                  collection in the cluster, which will result in an error if not
-                  exactly one collection is found.
+              backend:
                 properties:
-                  name:
-                    description: Required if specifying collection.  The name of the
-                      collection within a specific collection.namespace to reference.
+                  elasticSearch:
+                    properties:
+                      authType:
+                        default: basic
+                        description: "(Default: \"basic\") ElasticSearch authentication
+                          type to use.  Only 'basic' supported at this time. \n *
+                          'basic': For 'basic' authentication, the secret from .spec.backend.elasticSearch.secretRef
+                          should contain the basic authentication info for the ElasticSearch
+                          connection containing only a single key/value pair with
+                          the key as the username and the value as the password."
+                        enum:
+                        - basic
+                        type: string
+                      index:
+                        default: ocm_service_logs
+                        description: '(Default: "ocm_service_logs") Index name in
+                          ElasticSearch where service logs are sent.  Index name must
+                          be 128 characters or less.'
+                        maxLength: 128
+                        type: string
+                      secretRef:
+                        default: elastic-auth
+                        description: '(Default: "elastic-auth") The secret should
+                          contain the authentication information for the ElasticSearch
+                          connection.  See .spec.backend.elasticSearch.authType for
+                          more information on secret requirements.  This secret should
+                          exist in the same namespace as the OCMLogForwarder resource.'
+                        type: string
+                      url:
+                        default: https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200
+                        description: '(Default: "https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200")
+                          URL to which to ship logs when using the ''elasticsearch''
+                          as a backend in the .spec.backend.type field of this custom
+                          resource.'
+                        type: string
+                    type: object
+                  type:
+                    default: elasticsearch
+                    description: '(Default: "elasticsearch") Backend type where logs
+                      are sent and stored.  Only ''elasticsearch'' supported at this
+                      time.  Requires backend.elasticSearch.url to be set.'
+                    enum:
+                    - elasticsearch
                     type: string
-                  namespace:
-                    description: '(Default: "") The namespace where the collection
-                      exists.  Required only if the collection is namespace scoped
-                      and not cluster scoped.'
-                    type: string
-                required:
-                - name
                 type: object
               debug:
                 default: false
                 description: '(Default: false) Enable debug logging on the log forwarder.'
                 type: boolean
-              forwarderVersion:
-                default: latest
-                description: '(Default: "latest") OCM Log Forwarder version to use.  Any
-                  of the tags from the ocm-log-forwarder GitHub repo are supported
-                  here.'
-                type: string
               ocm:
                 properties:
                   clusterId:
@@ -74,12 +96,27 @@ spec:
                   pollInternalMinutes:
                     default: 5
                     description: '(Default: 5) How frequently, in minutes, the controller
-                      will poll the OpenShift Cluster Manager console.  Must be in
-                      the range of 1 minute to 1440 minutes (1 day).'
+                      will poll the OpenShift Cluster Manager console for service
+                      logs.  Must be in the range of 1 minute to 1440 minutes (1 day).'
                     maximum: 1440
                     minimum: 1
                     type: integer
+                  secretRef:
+                    default: ocm-token
+                    description: '(Default: "ocm-token") The secret should contain
+                      the OCM JSON token obtained from OpenShift Cluster Manager.  It
+                      should have a single key/value pair with the form of clusterId=ocmTokenJson.  The
+                      clusterId should match the .spec.ocm.clusterId field, while
+                      the ocmTokenJson value should be a string form of the token
+                      obtained from OCM.'
+                    type: string
                 type: object
+              version:
+                default: latest
+                description: '(Default: "latest") OCM Log Forwarder version to use.  Any
+                  of the tags from the ocm-log-forwarder GitHub repo are supported
+                  here.'
+                type: string
             type: object
           status:
             description: OCMLogForwarderStatus defines the observed state of OCMLogForwarder.

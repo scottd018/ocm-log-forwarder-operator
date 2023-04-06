@@ -57,8 +57,8 @@ func getOCMLogForwarderManifest(i *cmdinit.InitSubCommand) (string, error) {
 // parent command.
 func NewOCMLogForwarderSubCommand(parentCommand *cobra.Command) {
 	initCmd := &cmdinit.InitSubCommand{
-		Name:         "forwarder",
-		Description:  "Manage OCM Log Forwarder workload",
+		Name:         "init",
+		Description:  "write a sample custom resource manifest for a workload to standard out",
 		InitFunc:     InitOCMLogForwarder,
 		SubCommandOf: parentCommand,
 	}

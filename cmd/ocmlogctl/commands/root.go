@@ -41,8 +41,8 @@ func NewOcmlogctlCommand() *OcmlogctlCommand {
 	c := &OcmlogctlCommand{
 		Command: &cobra.Command{
 			Use:   "ocmlogctl",
-			Short: "Manage OCM Log Forwarder config and workload",
-			Long:  "Manage OCM Log Forwarder config and workload",
+			Short: "Manage OCM Log Forwarder workload",
+			Long:  "Manage OCM Log Forwarder workload",
 		},
 	}
 
@@ -58,31 +58,28 @@ func (c *OcmlogctlCommand) Run() {
 }
 
 func (c *OcmlogctlCommand) newInitSubCommand() {
-	parentCommand := cmdinit.GetParent(cmdinit.NewBaseInitSubCommand(c.Command))
+	parentCommand := cmdinit.GetParent(c.Command)
 	_ = parentCommand
 
 	// add the init subcommands
-	initapps.NewOCMLogForwarderConfigSubCommand(parentCommand)
 	initapps.NewOCMLogForwarderSubCommand(parentCommand)
 	//+kubebuilder:scaffold:operator-builder:subcommands:init
 }
 
 func (c *OcmlogctlCommand) newGenerateSubCommand() {
-	parentCommand := cmdgenerate.GetParent(cmdgenerate.NewBaseGenerateSubCommand(c.Command))
+	parentCommand := cmdgenerate.GetParent(c.Command)
 	_ = parentCommand
 
 	// add the generate subcommands
-	generateapps.NewOCMLogForwarderConfigSubCommand(parentCommand)
 	generateapps.NewOCMLogForwarderSubCommand(parentCommand)
 	//+kubebuilder:scaffold:operator-builder:subcommands:generate
 }
 
 func (c *OcmlogctlCommand) newVersionSubCommand() {
-	parentCommand := cmdversion.GetParent(cmdversion.NewBaseVersionSubCommand(c.Command))
+	parentCommand := cmdversion.GetParent(c.Command)
 	_ = parentCommand
 
 	// add the version subcommands
-	versionapps.NewOCMLogForwarderConfigSubCommand(parentCommand)
 	versionapps.NewOCMLogForwarderSubCommand(parentCommand)
 	//+kubebuilder:scaffold:operator-builder:subcommands:version
 }

@@ -20,5 +20,6 @@ package constants
 // package to prevent import cycle errors when attempting to reference the names from other
 // packages (e.g. mutate).
 const (
-	DeploymentForwarderNamespaceParentName = "parent.Name"
+	ServiceAccountParentName = "parent.Name"
+	DeploymentParentName     = "parent.Name"
 )

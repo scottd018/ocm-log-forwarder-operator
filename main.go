@@ -96,7 +96,6 @@ func main() {
 	}
 
 	reconcilers := []ReconcilerInitializer{
-		appscontrollers.NewOCMLogForwarderConfigReconciler(mgr),
 		appscontrollers.NewOCMLogForwarderReconciler(mgr),
 		//+kubebuilder:scaffold:reconcilers
 	}

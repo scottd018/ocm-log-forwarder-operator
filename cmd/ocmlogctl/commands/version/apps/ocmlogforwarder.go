@@ -28,8 +28,8 @@ import (
 // parent command.
 func NewOCMLogForwarderSubCommand(parentCommand *cobra.Command) {
 	versionCmd := &cmdversion.VersionSubCommand{
-		Name:         "forwarder",
-		Description:  "Manage OCM Log Forwarder workload",
+		Name:         "version",
+		Description:  "display the version information",
 		VersionFunc:  VersionOCMLogForwarder,
 		SubCommandOf: parentCommand,
 	}

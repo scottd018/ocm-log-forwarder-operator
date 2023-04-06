@@ -1,4 +1,4 @@
-kind: ComponentWorkload
+kind: StandaloneWorkload
 name: ocm-log-forwarder
 spec:
   api:
@@ -7,9 +7,9 @@ spec:
     group: apps
     kind: OCMLogForwarder
     version: v1alpha1
-  companionCliSubcmd:
+  companionCliRootcmd:
     description: Manage OCM Log Forwarder workload
-    name: forwarder
-  dependencies: []
+    name: ocmlogctl
   resources:
+    - manifests/rbac.yaml
     - manifests/deployment-elasticsearch.yaml

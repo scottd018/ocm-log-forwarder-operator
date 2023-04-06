@@ -1,12 +1,10 @@
 ---
-# +operator-builder:resource:collectionField=backend.type,value=elasticsearch,include=true
+# +operator-builder:resource:field=backend.type,value=elasticsearch,include=true
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   # +operator-builder:field:parent=metadata.name,type="string"
   name: ocm-log-forwarder
-  # +operator-builder:collection:field:name=forwarderNamespace,default="ocm-log-forwarder",type=string
-  namespace: ocm-log-forwarder
   labels:
     # +operator-builder:field:parent=metadata.name,type="string"
     app.kubernetes.io/name: ocm-log-forwarder
@@ -22,7 +20,7 @@ spec:
         # +operator-builder:field:parent=metadata.name,type="string"
         app.kubernetes.io/name: ocm-log-forwarder
     spec:
-      # +operator-builder:collection:field:parent=metadata.name,type="string"
+      # +operator-builder:field:parent=metadata.name,type="string"
       serviceAccountName: ocm-log-forwarder
       nodeSelector:
         kubernetes.io/os: linux
@@ -41,7 +39,7 @@ spec:
                         - ocm-log-forwarder
       containers:
         - name: forwarder
-          # +operator-builder:field:name=forwarderVersion,type=string,default="latest",replace="unstable",description=`
+          # +operator-builder:field:name=version,type=string,default="latest",replace="unstable",description=`
           # OCM Log Forwarder version to use.  Any of the tags from the ocm-log-forwarder GitHub
           # repo are supported here.
           # `
@@ -53,44 +51,56 @@ spec:
             #       those changes by restarting the managed pod.
             - name: OCM_CLUSTER_ID
               # +operator-builder:field:name=ocm.clusterId,type=string,description=`
-              # +kubebuilder:validation:Required
               # Cluster ID of the cluster to forward logs from.  This Cluster ID can be found in the OCM Console
               # as part of the URL when selecting the cluster.  It shows up in a form such as
               # '22tgckqk9c2ff3jd8ve62p0i2st14vrq'.
               # `
               value: 22tgckqk9c2ff3jd8ve62p0i2st14vrq
+            - name: OCM_SECRET_NAME
+              # +operator-builder:field:name=ocm.secretRef,type=string,default="ocm-token",description=`
+              # The secret should contain the OCM JSON token obtained from OpenShift Cluster Manager.  It should 
+              # have a single key/value pair with the form of clusterId=ocmTokenJson.  The clusterId
+              # should match the .spec.ocm.clusterId field, while the ocmTokenJson value should be a 
+              # string form of the token obtained from OCM.
+              # `
+              value: ocm-token
+            - name: OCM_SECRET_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
             - name: OCM_POLL_INTERVAL_MINUTES
               # +operator-builder:field:name=ocm.pollInternalMinutes,type=int,default=5,description=`
               # +kubebuilder:validation:Minimum=1
               # +kubebuilder:validation:Maximum=1440
-              # How frequently, in minutes, the controller will poll the OpenShift Cluster Manager console.  Must 
+              # How frequently, in minutes, the controller will poll the OpenShift Cluster Manager console for service logs.  Must 
               # be in the range of 1 minute to 1440 minutes (1 day).
               # `
               value: "1"
             - name: BACKEND_TYPE
-              # +operator-builder:collection:field:name=backend.type,type=string,default=elasticsearch,description=`
+              # +operator-builder:field:name=backend.type,type=string,default=elasticsearch,description=`
               # +kubebuilder:validation:Enum=elasticsearch
               # Backend type where logs are sent and stored.  Only 'elasticsearch' supported at this time.  Requires
               # backend.elasticSearch.url to be set.
               # `
               value: elasticsearch
             - name: BACKEND_ES_URL
-              # +operator-builder:collection:field:name=backend.elasticSearch.url,type=string,default="https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200",description=`
+              # +operator-builder:field:name=backend.elasticSearch.url,type=string,default="https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200",description=`
               # URL to which to ship logs when using the 'elasticsearch' as a backend in the .spec.backend.type
               # field of this custom resource.
               # `
               value: https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200
             - name: BACKEND_ES_AUTH_TYPE
-              # +operator-builder:collection:field:name=backend.elasticSearch.authType,type=string,default="basic",description=`
+              # +operator-builder:field:name=backend.elasticSearch.authType,type=string,default="basic",description=`
               # +kubebuilder:validation:Enum=basic
-              # ElasticSearch authentication type to use.  Only 'basic' supported at this time.  Requires
-              # a single key/value pair stored in a secret named 'elastic-auth' which contains the 
-              # basic authentication info for the ElasticSearch connection.  Secret must exist within the same namespace 
-              # where the OCM Log Collector is deployed to.
+              # ElasticSearch authentication type to use.  Only 'basic' supported at this time.  
+              # 
+              # * 'basic': For 'basic' authentication, the secret from .spec.backend.elasticSearch.secretRef should contain the 
+              # basic authentication information for the ElasticSearch connection containing only a single key/value pair with 
+              # the key as the username and the value as the password.
               # `
               value: basic
             - name: BACKEND_ES_INDEX
-              # +operator-builder:collection:field:name=backend.elasticSearch.index,type=string,default="ocm_service_logs",description=`
+              # +operator-builder:field:name=backend.elasticSearch.index,type=string,default="ocm_service_logs",description=`
               # +kubebuilder:validation:MaxLength=128
               # Index name in ElasticSearch where service logs are sent.  Index name must be 128 characters or less.
               # `
@@ -100,15 +110,12 @@ spec:
               # Enable debug logging on the log forwarder.
               # `
               value: "false"
-            # WARN: do not change these as changing these have affect of conflicting with
-            #       RBAC permissions.
-            - name: OCM_SECRET_NAME
-              value: ocm-token
-            - name: OCM_SECRET_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
             - name: BACKEND_ES_SECRET_NAME
+              # +operator-builder:field:name=backend.elasticSearch.secretRef,type=string,default="elastic-auth",description=`
+              # The secret should contain the authentication information for the ElasticSearch connection.  See 
+              # .spec.backend.elasticSearch.authType for more information on secret requirements.  This secret 
+              # should exist in the same namespace as the OCMLogForwarder resource.
+              # `
               value: elastic-auth
             - name: BACKEND_ES_SECRET_NAMESPACE
               valueFrom:

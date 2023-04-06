@@ -36,12 +36,10 @@ type OCMLogForwarderSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// +kubebuilder:validation:Optional
-	// Specifies a reference to the collection to use for this workload.
-	// Requires the name and namespace input to find the collection.
-	// If no collection field is set, default to selecting the only
-	// workload collection in the cluster, which will result in an error
-	// if not exactly one collection is found.
-	Collection OCMLogForwarderCollectionSpec `json:"collection"`
+	Ocm OCMLogForwarderSpecOcm `json:"ocm,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	Backend OCMLogForwarderSpecBackend `json:"backend,omitempty"`
 
 	// +kubebuilder:default="latest"
 	// +kubebuilder:validation:Optional
@@ -49,10 +47,7 @@ type OCMLogForwarderSpec struct {
 	//  OCM Log Forwarder version to use.  Any of the tags from the ocm-log-forwarder GitHub
 	//  repo are supported here.
 	//
-	ForwarderVersion string `json:"forwarderVersion,omitempty"`
-
-	// +kubebuilder:validation:Optional
-	Ocm OCMLogForwarderSpecOcm `json:"ocm,omitempty"`
+	Version string `json:"version,omitempty"`
 
 	// +kubebuilder:default=false
 	// +kubebuilder:validation:Optional
@@ -62,21 +57,18 @@ type OCMLogForwarderSpec struct {
 	Debug bool `json:"debug,omitempty"`
 }
 
-type OCMLogForwarderCollectionSpec struct {
-	// +kubebuilder:validation:Required
-	// Required if specifying collection.  The name of the collection
-	// within a specific collection.namespace to reference.
-	Name string `json:"name"`
-
-	// +kubebuilder:validation:Optional
-	// (Default: "") The namespace where the collection exists.  Required only if
-	// the collection is namespace scoped and not cluster scoped.
-	Namespace string `json:"namespace"`
-}
-
 type OCMLogForwarderSpecOcm struct {
+	// +kubebuilder:default="ocm-token"
+	// +kubebuilder:validation:Optional
+	// (Default: "ocm-token")
+	//  The secret should contain the OCM JSON token obtained from OpenShift Cluster Manager.  It should
+	//  have a single key/value pair with the form of clusterId=ocmTokenJson.  The clusterId
+	//  should match the .spec.ocm.clusterId field, while the ocmTokenJson value should be a
+	//  string form of the token obtained from OCM.
+	//
+	SecretRef string `json:"secretRef,omitempty"`
+
 	// +kubebuilder:validation:Required
-	//  +kubebuilder:validation:Required
 	//  Cluster ID of the cluster to forward logs from.  This Cluster ID can be found in the OCM Console
 	//  as part of the URL when selecting the cluster.  It shows up in a form such as
 	//  '22tgckqk9c2ff3jd8ve62p0i2st14vrq'.
@@ -88,10 +80,63 @@ type OCMLogForwarderSpecOcm struct {
 	// (Default: 5)
 	//  +kubebuilder:validation:Minimum=1
 	//  +kubebuilder:validation:Maximum=1440
-	//  How frequently, in minutes, the controller will poll the OpenShift Cluster Manager console.  Must
+	//  How frequently, in minutes, the controller will poll the OpenShift Cluster Manager console for service logs.  Must
 	//  be in the range of 1 minute to 1440 minutes (1 day).
 	//
 	PollInternalMinutes int `json:"pollInternalMinutes,omitempty"`
+}
+
+type OCMLogForwarderSpecBackend struct {
+	// +kubebuilder:validation:Optional
+	ElasticSearch OCMLogForwarderSpecBackendElasticSearch `json:"elasticSearch,omitempty"`
+
+	// +kubebuilder:default="elasticsearch"
+	// +kubebuilder:validation:Optional
+	// (Default: "elasticsearch")
+	//  +kubebuilder:validation:Enum=elasticsearch
+	//  Backend type where logs are sent and stored.  Only 'elasticsearch' supported at this time.  Requires
+	//  backend.elasticSearch.url to be set.
+	//
+	Type string `json:"type,omitempty"`
+}
+
+type OCMLogForwarderSpecBackendElasticSearch struct {
+	// +kubebuilder:default="elastic-auth"
+	// +kubebuilder:validation:Optional
+	// (Default: "elastic-auth")
+	//  The secret should contain the authentication information for the ElasticSearch connection.  See
+	//  .spec.backend.elasticSearch.authType for more information on secret requirements.  This secret
+	//  should exist in the same namespace as the OCMLogForwarder resource.
+	//
+	SecretRef string `json:"secretRef,omitempty"`
+
+	// +kubebuilder:default="https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200"
+	// +kubebuilder:validation:Optional
+	// (Default: "https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200")
+	//  URL to which to ship logs when using the 'elasticsearch' as a backend in the .spec.backend.type
+	//  field of this custom resource.
+	//
+	Url string `json:"url,omitempty"`
+
+	// +kubebuilder:default="basic"
+	// +kubebuilder:validation:Optional
+	// (Default: "basic")
+	//  +kubebuilder:validation:Enum=basic
+	//  ElasticSearch authentication type to use.  Only 'basic' supported at this time.
+	//
+	//  * 'basic': For 'basic' authentication, the secret from .spec.backend.elasticSearch.secretRef should contain the
+	//  basic authentication info for the ElasticSearch connection containing only a single key/value pair with
+	//  the key as the username and the value as the password.
+	//
+	AuthType string `json:"authType,omitempty"`
+
+	// +kubebuilder:default="ocm_service_logs"
+	// +kubebuilder:validation:Optional
+	// (Default: "ocm_service_logs")
+	//  +kubebuilder:validation:MaxLength=128
+	//  Index name in ElasticSearch where service logs are sent.  Index name must be 128 characters or less.
+	//
+	Index string `json:"index,omitempty"`
 }
 
 // OCMLogForwarderStatus defines the observed state of OCMLogForwarder.
