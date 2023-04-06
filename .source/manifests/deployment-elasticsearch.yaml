@@ -44,7 +44,7 @@ spec:
           # repo are supported here.
           # `
           image: ghcr.io/scottd018/ocm-log-forwarder:unstable
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           env:
             # NOTE: present all config options here.  Use these as environment variables 
             #       on the deployment so that changes here result in the app realizing 
