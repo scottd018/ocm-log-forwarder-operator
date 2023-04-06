@@ -9,6 +9,6 @@ spec:
     #namespace: ""
   forwarderVersion: "latest"
   ocm:
-    clusterId: "2O3Oo3FJT4Qo4n1MU97oFIPyXuJ"
-    pollInternalMinutes: 1
-  debug: true
+    clusterId: "22u78be01ukanemc80s27t7d49jcd8r8"
+    pollInternalMinutes: 5
+  debug: false

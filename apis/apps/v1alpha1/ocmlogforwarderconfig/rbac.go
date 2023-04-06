@@ -177,7 +177,8 @@ func CreateRoleBindingForwarderNamespaceParentNameOcm(
 			"subjects": []interface{}{
 				map[string]interface{}{
 					"kind": "ServiceAccount",
-					"name": "ocm-log-forwarder",
+					// controlled by field:
+					"name": parent.Name,
 				},
 			},
 		},
@@ -219,7 +220,8 @@ func CreateRoleBindingForwarderNamespaceParentNameElastic(
 			"subjects": []interface{}{
 				map[string]interface{}{
 					"kind": "ServiceAccount",
-					"name": "ocm-log-forwarder",
+					// controlled by field:
+					"name": parent.Name,
 				},
 			},
 		},

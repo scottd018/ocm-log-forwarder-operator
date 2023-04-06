@@ -65,6 +65,7 @@ roleRef:
   name: ocm-log-forwarder-ocm
 subjects:
   - kind: ServiceAccount
+    # +operator-builder:collection:field:parent=metadata.name,type="string"
     name: ocm-log-forwarder
 ---
 # +operator-builder:resource:collectionField=backend.type,value=elasticsearch,include=true
@@ -82,4 +83,5 @@ roleRef:
   name: ocm-log-forwarder-elastic
 subjects:
   - kind: ServiceAccount
+    # +operator-builder:collection:field:parent=metadata.name,type="string"
     name: ocm-log-forwarder
