@@ -1,0 +1,133 @@
+---
+# +operator-builder:resource:collectionField=backend.type,value=elasticsearch,include=true
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # +operator-builder:field:parent=metadata.name,type="string"
+  name: ocm-log-forwarder
+  # +operator-builder:collection:field:name=forwarderNamespace,default="ocm-log-forwarder",type=string
+  namespace: ocm-log-forwarder
+  labels:
+    # +operator-builder:field:parent=metadata.name,type="string"
+    app.kubernetes.io/name: ocm-log-forwarder
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      # +operator-builder:field:parent=metadata.name,type="string"
+      app.kubernetes.io/name: ocm-log-forwarder
+  template:
+    metadata:
+      labels:
+        # +operator-builder:field:parent=metadata.name,type="string"
+        app.kubernetes.io/name: ocm-log-forwarder
+    spec:
+      # +operator-builder:collection:field:parent=metadata.name,type="string"
+      serviceAccountName: ocm-log-forwarder
+      nodeSelector:
+        kubernetes.io/os: linux
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        # +operator-builder:field:parent=metadata.name,type="string"
+                        - ocm-log-forwarder
+      containers:
+        - name: forwarder
+          # +operator-builder:field:name=forwarderVersion,type=string,default="latest",replace="unstable",description=`
+          # OCM Log Forwarder version to use.  Any of the tags from the ocm-log-forwarder GitHub
+          # repo are supported here.
+          # `
+          image: ghcr.io/scottd018/ocm-log-forwarder:unstable
+          imagePullPolicy: Always
+          env:
+            # NOTE: present all config options here.  Use these as environment variables 
+            #       on the deployment so that changes here result in the app realizing 
+            #       those changes by restarting the managed pod.
+            - name: OCM_CLUSTER_ID
+              # +operator-builder:field:name=ocm.clusterId,type=string,description=`
+              # +kubebuilder:validation:Required
+              # Cluster ID of the cluster to forward logs from.  This Cluster ID can be found in the OCM Console
+              # as part of the URL when selecting the cluster.  It shows up in a form such as
+              # '22tgckqk9c2ff3jd8ve62p0i2st14vrq'.
+              # `
+              value: 22tgckqk9c2ff3jd8ve62p0i2st14vrq
+            - name: OCM_POLL_INTERVAL_MINUTES
+              # +operator-builder:field:name=ocm.pollInternalMinutes,type=int,default=5,description=`
+              # +kubebuilder:validation:Minimum=1
+              # +kubebuilder:validation:Maximum=1440
+              # How frequently, in minutes, the controller will poll the OpenShift Cluster Manager console.  Must 
+              # be in the range of 1 minute to 1440 minutes (1 day).
+              # `
+              value: "1"
+            - name: BACKEND_TYPE
+              # +operator-builder:collection:field:name=backend.type,type=string,default=elasticsearch,description=`
+              # +kubebuilder:validation:Enum=elasticsearch
+              # Backend type where logs are sent and stored.  Only 'elasticsearch' supported at this time.  Requires
+              # backend.elasticSearch.url to be set.
+              # `
+              value: elasticsearch
+            - name: BACKEND_ES_URL
+              # +operator-builder:collection:field:name=backend.elasticSearch.url,type=string,default="https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200",description=`
+              # URL to which to ship logs when using the 'elasticsearch' as a backend in the .spec.backend.type
+              # field of this custom resource.
+              # `
+              value: https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200
+            - name: BACKEND_ES_AUTH_TYPE
+              # +operator-builder:collection:field:name=backend.elasticSearch.authType,type=string,default="basic",description=`
+              # +kubebuilder:validation:Enum=basic
+              # ElasticSearch authentication type to use.  Only 'basic' supported at this time.  Requires
+              # a single key/value pair stored in a secret named 'elastic-auth' which contains the 
+              # basic authentication info for the ElasticSearch connection.  Secret must exist within the same namespace 
+              # where the OCM Log Collector is deployed to.
+              # `
+              value: basic
+            - name: BACKEND_ES_INDEX
+              # +operator-builder:collection:field:name=backend.elasticSearch.index,type=string,default="ocm_service_logs",description=`
+              # +kubebuilder:validation:MaxLength=128
+              # Index name in ElasticSearch where service logs are sent.  Index name must be 128 characters or less.
+              # `
+              value: ocm_service_logs
+            - name: DEBUG
+              # +operator-builder:field:name=debug,type=bool,default=false,description=`
+              # Enable debug logging on the log forwarder.
+              # `
+              value: "false"
+            # WARN: do not change these as changing these have affect of conflicting with
+            #       RBAC permissions.
+            - name: OCM_SECRET_NAME
+              value: ocm-token
+            - name: OCM_SECRET_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: BACKEND_ES_SECRET_NAME
+              value: elastic-auth
+            - name: BACKEND_ES_SECRET_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - "ALL"
+            runAsNonRoot: true
+            runAsGroup: 0
+            seccompProfile: 
+              type: RuntimeDefault
+          resources:
+            requests:
+              cpu: "25m"
+              memory: "32Mi"
+            limits:
+              cpu: "50m"
+              memory: "64Mi"

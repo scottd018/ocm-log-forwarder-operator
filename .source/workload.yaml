@@ -1,0 +1,15 @@
+kind: ComponentWorkload
+name: ocm-log-forwarder
+spec:
+  api:
+    clusterScoped: false
+    domain: dustinscott.io
+    group: apps
+    kind: OCMLogForwarder
+    version: v1alpha1
+  companionCliSubcmd:
+    description: Manage OCM Log Forwarder workload
+    name: forwarder
+  dependencies: []
+  resources:
+    - manifests/deployment-elasticsearch.yaml

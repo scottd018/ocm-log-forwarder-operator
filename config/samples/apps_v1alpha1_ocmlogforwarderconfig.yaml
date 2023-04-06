@@ -1,0 +1,13 @@
+apiVersion: apps.dustinscott.io/v1alpha1
+kind: OCMLogForwarderConfig
+metadata:
+  name: ocmlogforwarderconfig-sample
+spec:
+  provider: "rosa"
+  forwarderNamespace: "ocm-log-forwarder"
+  backend:
+    type: "elasticsearch"
+    elasticSearch:
+      url: "https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200"
+      authType: "basic"
+      index: "ocm_service_logs"

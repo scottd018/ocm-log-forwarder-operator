@@ -1,0 +1,14 @@
+apiVersion: apps.dustinscott.io/v1alpha1
+kind: OCMLogForwarder
+metadata:
+  name: ocmlogforwarder-sample
+  namespace: ocm-log-forwarder
+spec:
+  #collection:
+    #name: "ocmlogforwarderconfig-sample"
+    #namespace: ""
+  forwarderVersion: "latest"
+  ocm:
+    clusterId: "2O3Oo3FJT4Qo4n1MU97oFIPyXuJ"
+    pollInternalMinutes: 1
+  debug: true

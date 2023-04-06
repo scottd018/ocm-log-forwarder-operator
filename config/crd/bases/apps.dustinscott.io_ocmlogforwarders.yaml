@@ -1,0 +1,176 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.9.0
+  creationTimestamp: null
+  name: ocmlogforwarders.apps.dustinscott.io
+spec:
+  group: apps.dustinscott.io
+  names:
+    kind: OCMLogForwarder
+    listKind: OCMLogForwarderList
+    plural: ocmlogforwarders
+    singular: ocmlogforwarder
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: OCMLogForwarder is the Schema for the ocmlogforwarders API.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: OCMLogForwarderSpec defines the desired state of OCMLogForwarder.
+            properties:
+              collection:
+                description: Specifies a reference to the collection to use for this
+                  workload. Requires the name and namespace input to find the collection.
+                  If no collection field is set, default to selecting the only workload
+                  collection in the cluster, which will result in an error if not
+                  exactly one collection is found.
+                properties:
+                  name:
+                    description: Required if specifying collection.  The name of the
+                      collection within a specific collection.namespace to reference.
+                    type: string
+                  namespace:
+                    description: '(Default: "") The namespace where the collection
+                      exists.  Required only if the collection is namespace scoped
+                      and not cluster scoped.'
+                    type: string
+                required:
+                - name
+                type: object
+              debug:
+                default: false
+                description: '(Default: false) Enable debug logging on the log forwarder.'
+                type: boolean
+              forwarderVersion:
+                default: latest
+                description: '(Default: "latest") OCM Log Forwarder version to use.  Any
+                  of the tags from the ocm-log-forwarder GitHub repo are supported
+                  here.'
+                type: string
+              ocm:
+                properties:
+                  clusterId:
+                    description: Cluster ID of the cluster to forward logs from.  This
+                      Cluster ID can be found in the OCM Console as part of the URL
+                      when selecting the cluster.  It shows up in a form such as '22tgckqk9c2ff3jd8ve62p0i2st14vrq'.
+                    type: string
+                  pollInternalMinutes:
+                    default: 5
+                    description: '(Default: 5) How frequently, in minutes, the controller
+                      will poll the OpenShift Cluster Manager console.  Must be in
+                      the range of 1 minute to 1440 minutes (1 day).'
+                    maximum: 1440
+                    minimum: 1
+                    type: integer
+                type: object
+            type: object
+          status:
+            description: OCMLogForwarderStatus defines the observed state of OCMLogForwarder.
+            properties:
+              conditions:
+                items:
+                  description: PhaseCondition describes an event that has occurred
+                    during a phase of the controller reconciliation loop.
+                  properties:
+                    lastModified:
+                      description: LastModified defines the time in which this component
+                        was updated.
+                      type: string
+                    message:
+                      description: Message defines a helpful message from the phase.
+                      type: string
+                    phase:
+                      description: Phase defines the phase in which the condition
+                        was set.
+                      type: string
+                    state:
+                      description: PhaseState defines the current state of the phase.
+                      enum:
+                      - Complete
+                      - Reconciling
+                      - Failed
+                      - Pending
+                      type: string
+                  required:
+                  - lastModified
+                  - message
+                  - phase
+                  - state
+                  type: object
+                type: array
+              created:
+                type: boolean
+              dependenciesSatisfied:
+                type: boolean
+              resources:
+                items:
+                  description: ChildResource is the resource and its condition as
+                    stored on the workload custom resource's status field.
+                  properties:
+                    condition:
+                      description: ResourceCondition defines the current condition
+                        of this resource.
+                      properties:
+                        created:
+                          description: Created defines whether this object has been
+                            successfully created or not.
+                          type: boolean
+                        lastModified:
+                          description: LastModified defines the time in which this
+                            resource was updated.
+                          type: string
+                        message:
+                          description: Message defines a helpful message from the
+                            resource phase.
+                          type: string
+                      required:
+                      - created
+                      type: object
+                    group:
+                      description: Group defines the API Group of the resource.
+                      type: string
+                    kind:
+                      description: Kind defines the kind of the resource.
+                      type: string
+                    name:
+                      description: Name defines the name of the resource from the
+                        metadata.name field.
+                      type: string
+                    namespace:
+                      description: Namespace defines the namespace in which this resource
+                        exists in.
+                      type: string
+                    version:
+                      description: Version defines the API Version of the resource.
+                      type: string
+                  required:
+                  - group
+                  - kind
+                  - name
+                  - namespace
+                  - version
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

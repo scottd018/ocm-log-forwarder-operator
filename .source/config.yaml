@@ -1,0 +1,20 @@
+kind: WorkloadCollection
+name: ocm-log-forwarder-config
+spec:
+  api:
+    clusterScoped: true
+    domain: dustinscott.io
+    group: apps
+    kind: OCMLogForwarderConfig
+    version: v1alpha1
+  companionCliRootcmd:
+    description: Manage OCM Log Forwarder config and workload
+    name: ocmlogctl
+  companionCliSubcmd:
+    description: Manage OCM Log Forwarder config
+    name: config
+  componentFiles:
+    - workload.yaml
+  resources:
+    - manifests/namespace.yaml
+    - manifests/rbac.yaml

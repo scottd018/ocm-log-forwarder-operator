@@ -1,0 +1,85 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  # +operator-builder:collection:field:parent=metadata.name,type="string"
+  name: ocm-log-forwarder
+  # +operator-builder:collection:field:name=forwarderNamespace,default="ocm-log-forwarder",type=string
+  namespace: ocm-log-forwarder
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  # +operator-builder:collection:field:parent=metadata.name,replace="ocm-log-forwarder",type="string"
+  name: ocm-log-forwarder-ocm
+  # +operator-builder:collection:field:name=forwarderNamespace,default="ocm-log-forwarder",type=string
+  namespace: ocm-log-forwarder
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - watch
+      - list
+    resourceNames:
+      # NOTE: this secret must pre-exist for this operator to work.  The key should contain the 
+      #       string value of the JSON OCM API key.
+      - ocm-token
+---
+# +operator-builder:resource:collectionField=backend.type,value=elasticsearch,include=true
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  # +operator-builder:collection:field:parent=metadata.name,replace="ocm-log-forwarder",type="string"
+  name: ocm-log-forwarder-elastic
+  # +operator-builder:collection:field:name=forwarderNamespace,default="ocm-log-forwarder",type=string
+  namespace: ocm-log-forwarder
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - watch
+      - list
+    resourceNames:
+      # NOTE: this secret must pre-exist for this operator to work.  The key should contain the 
+      #       string value of the JSON OCM API key.
+      - elastic-auth
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  # +operator-builder:collection:field:parent=metadata.name,replace="ocm-log-forwarder",type="string"
+  name: ocm-log-forwarder-ocm
+  # +operator-builder:collection:field:name=forwarderNamespace,default="ocm-log-forwarder",type=string
+  namespace: ocm-log-forwarder
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  # +operator-builder:collection:field:parent=metadata.name,replace="ocm-log-forwarder",type="string"
+  name: ocm-log-forwarder-ocm
+subjects:
+  - kind: ServiceAccount
+    name: ocm-log-forwarder
+---
+# +operator-builder:resource:collectionField=backend.type,value=elasticsearch,include=true
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  # +operator-builder:collection:field:parent=metadata.name,replace="ocm-log-forwarder",type="string"
+  name: ocm-log-forwarder-elastic
+  # +operator-builder:collection:field:name=forwarderNamespace,default="ocm-log-forwarder",type=string
+  namespace: ocm-log-forwarder
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  # +operator-builder:collection:field:parent=metadata.name,replace="ocm-log-forwarder",type="string"
+  name: ocm-log-forwarder-elastic
+subjects:
+  - kind: ServiceAccount
+    name: ocm-log-forwarder

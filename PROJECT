@@ -1,0 +1,31 @@
+domain: dustinscott.io
+layout:
+- go.kubebuilder.io/v3
+multigroup: true
+plugins:
+  operatorBuilder:
+    cliRootCommandName: ocmlogctl
+    controllerImg: ""
+    workloadConfigPath: .source/config.yaml
+projectName: ocm-log-forwarder-operator
+repo: github.com/scottd018/ocm-log-forwarder-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: dustinscott.io
+  group: apps
+  kind: OCMLogForwarderConfig
+  path: github.com/scottd018/ocm-log-forwarder-operator/apis/apps/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: dustinscott.io
+  group: apps
+  kind: OCMLogForwarder
+  path: github.com/scottd018/ocm-log-forwarder-operator/apis/apps/v1alpha1
+  version: v1alpha1
+version: "3"
