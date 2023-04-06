@@ -1,5 +1,11 @@
-A Kubernetes operator built with
-[operator-builder](https://github.com/nukleros/operator-builder).
+A Kubernetes operator built with [operator-builder](https://github.com/nukleros/operator-builder).
+
+## Quick Start
+
+Deploy the operator (be sure to substitute the appropriate version) from a release:
+
+    kubectl apply -f https://github.com/scottd018/ocm-log-forwarder-operator/releases/download/${VERSION}/deploy.yaml
+
 
 ## Local Development & Testing
 
@@ -20,11 +26,12 @@ To clean up:
 
     make uninstall
 
-## Deploy the Controller Manager
 
-First, set the image:
+## Deploy the Controller Manager (from Source)
 
-    export IMG=myrepo/myproject:v0.1.0
+First, set the image (be sure the substitute the appropriate version):
+
+    export IMG=github.com/scottd018/ocm-log-forwarder-operator:${VERSION}
 
 Now you can build and push the image:
 
@@ -38,6 +45,7 @@ Then deploy:
 To clean up:
 
     make undeploy
+
 
 ## Companion CLI
 
