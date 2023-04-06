@@ -54,7 +54,13 @@ dockers:
 #       that were uploaded.  in the case that this behavior regresses, this may cause
 #       duplication in the release notes.
 release:
+  extra_files:
+    - glob: "deploy.yaml"
   footer: |
+    ## Kubernetes Manifests
+
+    * `kubectl apply -f https://github.com/scottd018/ocm-log-forwarder-operator/releases/download/v{{ .Version }}/deploy.yaml`
+
     ## Docker Images
 
     * `docker pull ghcr.io/scottd018/ocm-log-forwarder-operator:v{{ .Version }}`
