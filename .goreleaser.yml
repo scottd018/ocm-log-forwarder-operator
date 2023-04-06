@@ -55,7 +55,7 @@ dockers:
 #       duplication in the release notes.
 release:
   extra_files:
-    - glob: "deploy.yaml"
+    - glob: "build/deploy.yaml"
   footer: |
     ## Kubernetes Manifests
 
