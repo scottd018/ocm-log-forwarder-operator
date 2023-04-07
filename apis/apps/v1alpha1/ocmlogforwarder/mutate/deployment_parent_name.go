@@ -34,6 +34,10 @@ const (
 	logForwarderContainerName = "forwarder"
 )
 
+// This is needed in order for the operator to update finalizers
+
+//+kubebuilder:rbac:groups=apps.dustinscott.io,resources=ocmlogforwarders/finalizers,verbs=update
+
 // MutateDeploymentParentName mutates the Deployment resource with name parent.Name.
 func MutateDeploymentParentName(
 	original client.Object,

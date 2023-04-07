@@ -32,6 +32,12 @@ rules:
 - apiGroups:
   - apps.dustinscott.io
   resources:
+  - ocmlogforwarders/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - apps.dustinscott.io
+  resources:
   - ocmlogforwarders/status
   verbs:
   - get
