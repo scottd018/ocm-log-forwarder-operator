@@ -6,10 +6,10 @@ metadata:
 spec:
   ocm:
     secretRef: "ocm-token"
-    clusterId: "22tgckqk9c2ff3jd8ve62p0i2st14vrq"
-    pollInternalMinutes: 5
+    clusterId: "231lma7ae9t3gsudlvhhs18knrsfb98v"
+    pollInternalMinutes: 1
   backend:
-    elasticSearch:
+    elasticsearch:
       secretRef: "elastic-auth"
       url: "https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200"
       authType: "basic"

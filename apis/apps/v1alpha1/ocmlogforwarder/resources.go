@@ -39,7 +39,7 @@ spec:
     clusterId: "22tgckqk9c2ff3jd8ve62p0i2st14vrq"
     pollInternalMinutes: 5
   backend:
-    elasticSearch:
+    elasticsearch:
       secretRef: "elastic-auth"
       url: "https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200"
       authType: "basic"

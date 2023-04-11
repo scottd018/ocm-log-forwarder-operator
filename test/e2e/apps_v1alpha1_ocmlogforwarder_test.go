@@ -31,9 +31,7 @@ import (
 	"github.com/scottd018/ocm-log-forwarder-operator/apis/apps/v1alpha1/ocmlogforwarder"
 )
 
-//
 // appsv1alpha1OCMLogForwarder tests
-//
 func appsv1alpha1OCMLogForwarderChildrenFuncs(tester *E2ETest) error {
 	// TODO: need to run r.GetResources(request) on the reconciler to get the mutated resources
 	if len(ocmlogforwarder.CreateFuncs) == 0 {
@@ -79,11 +77,11 @@ func (tester *E2ETest) appsv1alpha1OCMLogForwarderTest(testSuite *E2EComponentTe
 
 	// test the update of a child object
 	// TODO: need immutable fields so that we can predict which managed fields we can modify to test reconciliation
-	// see https://github.com/vmware-tanzu-labs/operator-builder/issues/67
+	// see https://github.com/nukleros/operator-builder/issues/24
 
 	// test the update of a parent object
 	// TODO: need immutable fields so that we can predict which managed fields we can modify to test reconciliation
-	// see https://github.com/vmware-tanzu-labs/operator-builder/issues/67
+	// see https://github.com/nukleros/operator-builder/issues/24
 
 	// test that controller logs do not contain errors
 	if os.Getenv("DEPLOY_IN_CLUSTER") == "true" {

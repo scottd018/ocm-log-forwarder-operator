@@ -80,27 +80,27 @@ spec:
               # +operator-builder:field:name=backend.type,type=string,default=elasticsearch,description=`
               # +kubebuilder:validation:Enum=elasticsearch
               # Backend type where logs are sent and stored.  Only 'elasticsearch' supported at this time.  Requires
-              # backend.elasticSearch.url to be set.
+              # backend.elasticsearch.url to be set.
               # `
               value: elasticsearch
             - name: BACKEND_ES_URL
-              # +operator-builder:field:name=backend.elasticSearch.url,type=string,default="https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200",description=`
+              # +operator-builder:field:name=backend.elasticsearch.url,type=string,default="https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200",description=`
               # URL to which to ship logs when using the 'elasticsearch' as a backend in the .spec.backend.type
               # field of this custom resource.
               # `
               value: https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200
             - name: BACKEND_ES_AUTH_TYPE
-              # +operator-builder:field:name=backend.elasticSearch.authType,type=string,default="basic",description=`
+              # +operator-builder:field:name=backend.elasticsearch.authType,type=string,default="basic",description=`
               # +kubebuilder:validation:Enum=basic
               # ElasticSearch authentication type to use.  Only 'basic' supported at this time.  
               # 
-              # * 'basic': For 'basic' authentication, the secret from .spec.backend.elasticSearch.secretRef should contain the 
+              # * 'basic': For 'basic' authentication, the secret from .spec.backend.elasticsearch.secretRef should contain the 
               # basic authentication information for the ElasticSearch connection containing only a single key/value pair with 
               # the key as the username and the value as the password.
               # `
               value: basic
             - name: BACKEND_ES_INDEX
-              # +operator-builder:field:name=backend.elasticSearch.index,type=string,default="ocm_service_logs",description=`
+              # +operator-builder:field:name=backend.elasticsearch.index,type=string,default="ocm_service_logs",description=`
               # +kubebuilder:validation:MaxLength=128
               # Index name in ElasticSearch where service logs are sent.  Index name must be 128 characters or less.
               # `
@@ -111,9 +111,9 @@ spec:
               # `
               value: "false"
             - name: BACKEND_ES_SECRET_NAME
-              # +operator-builder:field:name=backend.elasticSearch.secretRef,type=string,default="elastic-auth",description=`
+              # +operator-builder:field:name=backend.elasticsearch.secretRef,type=string,default="elastic-auth",description=`
               # The secret should contain the authentication information for the ElasticSearch connection.  See 
-              # .spec.backend.elasticSearch.authType for more information on secret requirements.  This secret 
+              # .spec.backend.elasticsearch.authType for more information on secret requirements.  This secret 
               # should exist in the same namespace as the OCMLogForwarder resource.
               # `
               value: elastic-auth

@@ -63,12 +63,6 @@ func NewOCMLogForwarderReconciler(mgr ctrl.Manager) *OCMLogForwarderReconciler {
 // +kubebuilder:rbac:groups=apps.dustinscott.io,resources=ocmlogforwarders,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=apps.dustinscott.io,resources=ocmlogforwarders/status,verbs=get;update;patch
 
-// Until Webhooks are implemented we need to list and watch namespaces to ensure
-// they are available before deploying resources,
-// See:
-//   - https://github.com/vmware-tanzu-labs/operator-builder/issues/141
-//   - https://github.com/vmware-tanzu-labs/operator-builder/issues/162
-
 // +kubebuilder:rbac:groups=core,resources=namespaces,verbs=list;watch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to

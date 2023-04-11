@@ -134,8 +134,8 @@ func CreateRoleParentNameElastic(
 						"list",
 					},
 					"resourceNames": []interface{}{
-						// controlled by field: backend.elasticSearch.secretRef
-						parent.Spec.Backend.ElasticSearch.SecretRef,
+						// controlled by field: backend.elasticsearch.secretRef
+						parent.Spec.Backend.Elasticsearch.SecretRef,
 					},
 				},
 			},

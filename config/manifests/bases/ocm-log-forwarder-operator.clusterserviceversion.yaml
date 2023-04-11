@@ -1,0 +1,54 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: ocm-log-forwarder-operator.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: OCMLogForwarder is the Schema for the ocmlogforwarders API.
+      displayName: OCMLog Forwarder
+      kind: OCMLogForwarder
+      name: ocmlogforwarders.apps.dustinscott.io
+      version: v1alpha1
+  description: Forward Logs from OCM to a backend.
+  displayName: OCM Log Forwarder Operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - ocm
+  - logs
+  - logging
+  - efk
+  - elk
+  - elasticsearch
+  - openshift
+  links:
+  - name: Ocm Log Forwarder Operator
+    url: https://ocm-log-forwarder-operator.domain
+  maintainers:
+  - email: dscott@redhat.com
+    name: Dustin Scott
+  maturity: alpha
+  provider:
+    name: Dustin Scott
+    url: https://github.com/scottd018/ocm-log-forwarder-operator
+  version: 0.0.0

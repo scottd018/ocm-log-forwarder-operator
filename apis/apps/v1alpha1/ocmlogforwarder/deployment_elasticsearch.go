@@ -152,37 +152,37 @@ func CreateDeploymentParentName(
 										// controlled by field: backend.type
 										//  +kubebuilder:validation:Enum=elasticsearch
 										//  Backend type where logs are sent and stored.  Only 'elasticsearch' supported at this time.  Requires
-										//  backend.elasticSearch.url to be set.
+										//  backend.elasticsearch.url to be set.
 										//
 										"value": parent.Spec.Backend.Type,
 									},
 									map[string]interface{}{
 										"name": "BACKEND_ES_URL",
-										// controlled by field: backend.elasticSearch.url
+										// controlled by field: backend.elasticsearch.url
 										//  URL to which to ship logs when using the 'elasticsearch' as a backend in the .spec.backend.type
 										//  field of this custom resource.
 										//
-										"value": parent.Spec.Backend.ElasticSearch.Url,
+										"value": parent.Spec.Backend.Elasticsearch.Url,
 									},
 									map[string]interface{}{
 										"name": "BACKEND_ES_AUTH_TYPE",
-										// controlled by field: backend.elasticSearch.authType
+										// controlled by field: backend.elasticsearch.authType
 										//  +kubebuilder:validation:Enum=basic
 										//  ElasticSearch authentication type to use.  Only 'basic' supported at this time.
 										//
-										//  * 'basic': For 'basic' authentication, the secret from .spec.backend.elasticSearch.secretRef should contain the
+										//  * 'basic': For 'basic' authentication, the secret from .spec.backend.elasticsearch.secretRef should contain the
 										//  basic authentication information for the ElasticSearch connection containing only a single key/value pair with
 										//  the key as the username and the value as the password.
 										//
-										"value": parent.Spec.Backend.ElasticSearch.AuthType,
+										"value": parent.Spec.Backend.Elasticsearch.AuthType,
 									},
 									map[string]interface{}{
 										"name": "BACKEND_ES_INDEX",
-										// controlled by field: backend.elasticSearch.index
+										// controlled by field: backend.elasticsearch.index
 										//  +kubebuilder:validation:MaxLength=128
 										//  Index name in ElasticSearch where service logs are sent.  Index name must be 128 characters or less.
 										//
-										"value": parent.Spec.Backend.ElasticSearch.Index,
+										"value": parent.Spec.Backend.Elasticsearch.Index,
 									},
 									map[string]interface{}{
 										"name": "DEBUG",
@@ -193,12 +193,12 @@ func CreateDeploymentParentName(
 									},
 									map[string]interface{}{
 										"name": "BACKEND_ES_SECRET_NAME",
-										// controlled by field: backend.elasticSearch.secretRef
+										// controlled by field: backend.elasticsearch.secretRef
 										//  The secret should contain the authentication information for the ElasticSearch connection.  See
-										//  .spec.backend.elasticSearch.authType for more information on secret requirements.  This secret
+										//  .spec.backend.elasticsearch.authType for more information on secret requirements.  This secret
 										//  should exist in the same namespace as the OCMLogForwarder resource.
 										//
-										"value": parent.Spec.Backend.ElasticSearch.SecretRef,
+										"value": parent.Spec.Backend.Elasticsearch.SecretRef,
 									},
 									map[string]interface{}{
 										"name": "BACKEND_ES_SECRET_NAMESPACE",

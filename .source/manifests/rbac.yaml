@@ -40,7 +40,7 @@ rules:
       - watch
       - list
     resourceNames:
-      # +operator-builder:field:name=backend.elasticSearch.secretRef,type=string,default="elastic-auth"
+      # +operator-builder:field:name=backend.elasticsearch.secretRef,type=string,default="elastic-auth"
       - elastic-auth
 ---
 apiVersion: rbac.authorization.k8s.io/v1

@@ -44,16 +44,16 @@ type OCMLogForwarderSpec struct {
 	// +kubebuilder:default="latest"
 	// +kubebuilder:validation:Optional
 	// (Default: "latest")
-	//  OCM Log Forwarder version to use.  Any of the tags from the ocm-log-forwarder GitHub
-	//  repo are supported here.
 	//
+	//	OCM Log Forwarder version to use.  Any of the tags from the ocm-log-forwarder GitHub
+	//	repo are supported here.
 	Version string `json:"version,omitempty"`
 
 	// +kubebuilder:default=false
 	// +kubebuilder:validation:Optional
 	// (Default: false)
-	//  Enable debug logging on the log forwarder.
 	//
+	//	Enable debug logging on the log forwarder.
 	Debug bool `json:"debug,omitempty"`
 }
 
@@ -61,81 +61,81 @@ type OCMLogForwarderSpecOcm struct {
 	// +kubebuilder:default="ocm-token"
 	// +kubebuilder:validation:Optional
 	// (Default: "ocm-token")
-	//  The secret should contain the OCM JSON token obtained from OpenShift Cluster Manager.  It should
-	//  have a single key/value pair with the form of clusterId=ocmTokenJson.  The clusterId
-	//  should match the .spec.ocm.clusterId field, while the ocmTokenJson value should be a
-	//  string form of the token obtained from OCM.
 	//
+	//	The secret should contain the OCM JSON token obtained from OpenShift Cluster Manager.  It should
+	//	have a single key/value pair with the form of clusterId=ocmTokenJson.  The clusterId
+	//	should match the .spec.ocm.clusterId field, while the ocmTokenJson value should be a
+	//	string form of the token obtained from OCM.
 	SecretRef string `json:"secretRef,omitempty"`
 
 	// +kubebuilder:validation:Required
-	//  Cluster ID of the cluster to forward logs from.  This Cluster ID can be found in the OCM Console
-	//  as part of the URL when selecting the cluster.  It shows up in a form such as
-	//  '22tgckqk9c2ff3jd8ve62p0i2st14vrq'.
 	//
+	//	Cluster ID of the cluster to forward logs from.  This Cluster ID can be found in the OCM Console
+	//	as part of the URL when selecting the cluster.  It shows up in a form such as
+	//	'22tgckqk9c2ff3jd8ve62p0i2st14vrq'.
 	ClusterId string `json:"clusterId,omitempty"`
 
 	// +kubebuilder:default=5
 	// +kubebuilder:validation:Optional
 	// (Default: 5)
-	//  +kubebuilder:validation:Minimum=1
-	//  +kubebuilder:validation:Maximum=1440
-	//  How frequently, in minutes, the controller will poll the OpenShift Cluster Manager console for service logs.  Must
-	//  be in the range of 1 minute to 1440 minutes (1 day).
 	//
+	//	+kubebuilder:validation:Minimum=1
+	//	+kubebuilder:validation:Maximum=1440
+	//	How frequently, in minutes, the controller will poll the OpenShift Cluster Manager console for service logs.  Must
+	//	be in the range of 1 minute to 1440 minutes (1 day).
 	PollInternalMinutes int `json:"pollInternalMinutes,omitempty"`
 }
 
 type OCMLogForwarderSpecBackend struct {
 	// +kubebuilder:validation:Optional
-	ElasticSearch OCMLogForwarderSpecBackendElasticSearch `json:"elasticSearch,omitempty"`
+	Elasticsearch OCMLogForwarderSpecBackendElasticsearch `json:"elasticsearch,omitempty"`
 
 	// +kubebuilder:default="elasticsearch"
 	// +kubebuilder:validation:Optional
 	// (Default: "elasticsearch")
-	//  +kubebuilder:validation:Enum=elasticsearch
-	//  Backend type where logs are sent and stored.  Only 'elasticsearch' supported at this time.  Requires
-	//  backend.elasticSearch.url to be set.
 	//
+	//	+kubebuilder:validation:Enum=elasticsearch
+	//	Backend type where logs are sent and stored.  Only 'elasticsearch' supported at this time.  Requires
+	//	backend.elasticsearch.url to be set.
 	Type string `json:"type,omitempty"`
 }
 
-type OCMLogForwarderSpecBackendElasticSearch struct {
+type OCMLogForwarderSpecBackendElasticsearch struct {
 	// +kubebuilder:default="elastic-auth"
 	// +kubebuilder:validation:Optional
 	// (Default: "elastic-auth")
-	//  The secret should contain the authentication information for the ElasticSearch connection.  See
-	//  .spec.backend.elasticSearch.authType for more information on secret requirements.  This secret
-	//  should exist in the same namespace as the OCMLogForwarder resource.
 	//
+	//	The secret should contain the authentication information for the ElasticSearch connection.  See
+	//	.spec.backend.elasticsearch.authType for more information on secret requirements.  This secret
+	//	should exist in the same namespace as the OCMLogForwarder resource.
 	SecretRef string `json:"secretRef,omitempty"`
 
 	// +kubebuilder:default="https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200"
 	// +kubebuilder:validation:Optional
 	// (Default: "https://elasticsearch-es-http.elastic-system.svc.cluster.local:9200")
-	//  URL to which to ship logs when using the 'elasticsearch' as a backend in the .spec.backend.type
-	//  field of this custom resource.
 	//
+	//	URL to which to ship logs when using the 'elasticsearch' as a backend in the .spec.backend.type
+	//	field of this custom resource.
 	Url string `json:"url,omitempty"`
 
 	// +kubebuilder:default="basic"
 	// +kubebuilder:validation:Optional
 	// (Default: "basic")
-	//  +kubebuilder:validation:Enum=basic
-	//  ElasticSearch authentication type to use.  Only 'basic' supported at this time.
 	//
-	//  * 'basic': For 'basic' authentication, the secret from .spec.backend.elasticSearch.secretRef should contain the
-	//  basic authentication information for the ElasticSearch connection containing only a single key/value pair with
-	//  the key as the username and the value as the password.
+	//	+kubebuilder:validation:Enum=basic
+	//	ElasticSearch authentication type to use.  Only 'basic' supported at this time.
 	//
+	//	* 'basic': For 'basic' authentication, the secret from .spec.backend.elasticsearch.secretRef should contain the
+	//	basic authentication information for the ElasticSearch connection containing only a single key/value pair with
+	//	the key as the username and the value as the password.
 	AuthType string `json:"authType,omitempty"`
 
 	// +kubebuilder:default="ocm_service_logs"
 	// +kubebuilder:validation:Optional
 	// (Default: "ocm_service_logs")
-	//  +kubebuilder:validation:MaxLength=128
-	//  Index name in ElasticSearch where service logs are sent.  Index name must be 128 characters or less.
 	//
+	//	+kubebuilder:validation:MaxLength=128
+	//	Index name in ElasticSearch where service logs are sent.  Index name must be 128 characters or less.
 	Index string `json:"index,omitempty"`
 }
 
